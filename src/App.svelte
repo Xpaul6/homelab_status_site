@@ -1,16 +1,16 @@
+<script>
+  import MCStatusBar from "./components/MCStatusBar.svelte";
+
+  const mcservers = [
+    { address: "carapuziki.ddns.net:25000", label: "CARAPUZIKI" },
+    { address: "carapuziki.ddns.net:25565", label: "YapSMP" },
+  ];
+</script>
+
 <svelte:head>
   <title>who the hell is giganig...</title>
   <link rel="icon" type="image" href="/gnome.png" />
 </svelte:head>
-
-<script>
-  import MCStatusBar from "./components/MCStatusBar.svelte"
-
-  const mcservers = [
-    {address: 'carapuziki.ddns.net:25000', label: 'CARAPUZIKI'},
-    {address: 'carapuziki.ddns.net:25565', label: 'YapSMP'},
-  ]
-</script>
 
 <main>
   <div class="flex flex-col justify-center items-center">
@@ -21,10 +21,8 @@
 
     <div class="flex flex-row flex-wrap w-3/4 max-w-[700px] justify-center">
       {#each mcservers as server}
-        <MCStatusBar address={server.address} label={server.label}/>
+        <MCStatusBar address={server.address} label={server.label} />
       {/each}
     </div>
-
   </div>
 </main>
-

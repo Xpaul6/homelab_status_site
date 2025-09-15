@@ -1,29 +1,31 @@
 <script>
-  let props = $props()
-  let address = props.address
-  let label = props.label
+  let props = $props();
+  let address = props.address;
+  let label = props.label;
 
-  let isLoading = $state(true)
-  let status = $state(false)
-  let player_number = $state(0)
-  let max_player_number = $state(0)
+  let isLoading = $state(true);
+  let status = $state(false);
+  let player_number = $state(0);
+  let max_player_number = $state(0);
 
   function getStatus() {
-    isLoading = true
+    isLoading = true;
     fetch(`https://api.mcstatus.io/v2/status/java/${address}`)
-      .then(res => res.json())
-      .then(info => {
-        status = info.online
+      .then((res) => res.json())
+      .then((info) => {
+        status = info.online;
         if (status) {
-          player_number = info.players.online
-          max_player_number = info.players.max
+          player_number = info.players.online;
+          max_player_number = info.players.max;
         }
       })
-      .catch(err => console.log(err))
-      .finally(() => {isLoading = false})
+      .catch((err) => console.log(err))
+      .finally(() => {
+        isLoading = false;
+      });
   }
 
-  getStatus()
+  getStatus();
 </script>
 
 <div>
@@ -32,7 +34,7 @@
       <div>
         {label}:
         {#if status}
-          <span class="text-green-200">online</span> 
+          <span class="text-green-200">online</span>
         {:else}
           offline
         {/if}
@@ -45,4 +47,3 @@
     {/if}
   </div>
 </div>
-
