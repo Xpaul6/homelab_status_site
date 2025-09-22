@@ -5,6 +5,21 @@
     { address: "carapuziki.ddns.net:25000", label: "CARAPUZIKI" },
     { address: "carapuziki.ddns.net:25565", label: "YapSMP" },
   ];
+
+  let server_status = $state("Loading...");
+
+  async function getStatus() {
+    try {
+      const res = await fetch("/api/server-status");
+      const info = await res.text();
+      server_status = info;
+    } catch (err) {
+      console.log(err);
+      server_status = "Server is down :("
+    }
+  }
+
+  getStatus();
 </script>
 
 <svelte:head>
@@ -14,7 +29,7 @@
 
 <main>
   <div class="flex flex-col justify-center items-center">
-    <h1 class="mt-20">Server is up!</h1>
+    <h1 class="mt-20">{server_status}</h1>
     <div class="h-20"></div>
 
     <h2 class="m-3">Services status:</h2>

@@ -14,6 +14,13 @@ export default defineConfig(({ mode }) => ({
     ],
     port: 5555,
     host: '0.0.0.0',
+    proxy: {
+      '/api': {
+        target: `http://backend:${BACKEND_PORT}`,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
   },
   server: {
     proxy: {
