@@ -8,21 +8,21 @@
   let player_number = $state(0);
   let max_player_number = $state(0);
 
-  function getStatus() {
+  async function getStatus() {
     isLoading = true;
-    fetch(`https://api.mcstatus.io/v2/status/java/${address}`)
-      .then((res) => res.json())
-      .then((info) => {
-        status = info.online;
-        if (status) {
-          player_number = info.players.online;
-          max_player_number = info.players.max;
-        }
-      })
-      .catch((err) => console.log(err))
-      .finally(() => {
-        isLoading = false;
-      });
+    try {
+      const res = await fetch(`https://api.mcstatus.io/v2/status/java/${address}`);
+      const info = await res.json();
+      status = info.online;
+      if (status) {
+        player_number = info.players.online;
+        max_player_number = info.players.max;
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      isLoading = false;
+    }
   }
 
   getStatus();
