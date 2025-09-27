@@ -11,8 +11,11 @@
   async function getStatus() {
     isLoading = true;
     try {
-      const res = await fetch(`https://api.mcstatus.io/v2/status/java/${address}`);
+      const res = await fetch(`/api/mcstatus/${address}`);
       const info = await res.json();
+      if (res.status != 200) {
+        throw Error(info.error);
+      }
       status = info.online;
       if (status) {
         player_number = info.players.online;
