@@ -19,18 +19,21 @@
       monitor_data = data;
     } catch (error) {
       console.log(error);
-      monitor_data = default_monitor_data
+      monitor_data = default_monitor_data;
     } finally {
       isLoading = false;
     }
   }
 
   getMonitorData();
+  setInterval(() => getMonitorData(), 5000);
 </script>
 
 <div class="card w-2/4 max-w-[200px]">
   {#if isLoading}
+    <div>-        -</div>
     <div>Loading...</div>
+    <div>-        -</div>
   {:else}
     <div>CPU temp: {monitor_data.cpu_temp}°C</div>
     <div>CPU load: {monitor_data.cpu_load_percent.toFixed(1)}%</div>
