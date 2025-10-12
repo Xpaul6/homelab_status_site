@@ -3,13 +3,11 @@
   let address = props.address;
   let label = props.label;
 
-  let isLoading = $state(true);
   let status = $state(false);
   let player_number = $state(0);
   let max_player_number = $state(0);
 
   async function getStatus() {
-    isLoading = true;
     try {
       const response = await fetch(`/api/mcstatus/${address}`);
       if (!response.ok) throw new Error(`unable to fetch ${address} status`);
@@ -22,8 +20,6 @@
       }
     } catch (error) {
       console.log(error);
-    } finally {
-      isLoading = false;
     }
   }
 
@@ -32,7 +28,9 @@
 
 <div>
   <div class="card">
-    {#if !isLoading}
+    {#await getStatus()}
+      <div>Loading...</div>
+    {:then}
       <div>
         {label}:
         {#if status}
@@ -44,8 +42,6 @@
       {#if status}
         <div>{player_number}/{max_player_number} players</div>
       {/if}
-    {:else}
-      <div>Loading...</div>
-    {/if}
+    {/await}
   </div>
 </div>

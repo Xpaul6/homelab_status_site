@@ -5,11 +5,9 @@
     ram_percent: 0,
   };
 
-  let isLoading = $state(true);
   let monitor_data = $state(default_monitor_data);
 
   async function getMonitorData() {
-    isLoading = true;
     try {
       const response = await fetch("/api/sysinfo");
       if (!response.ok) throw new Error("unable to fetch system data");
@@ -18,9 +16,6 @@
       monitor_data = data;
     } catch (error) {
       console.log(error);
-      monitor_data = default_monitor_data;
-    } finally {
-      isLoading = false;
     }
   }
 
@@ -29,13 +24,13 @@
 </script>
 
 <div class="card w-2/4 max-w-[200px]">
-  {#if isLoading}
+  {#await getMonitorData()}
     <div>----------</div>
     <div>Loading...</div>
     <div>----------</div>
-  {:else}
+  {:then}
     <div>CPU temp: {monitor_data.cpu_temp}°C</div>
     <div>CPU load: {monitor_data.cpu_load_percent.toFixed(1)}%</div>
     <div>RAM load: {monitor_data.ram_percent.toFixed(1)}%</div>
-  {/if}
+  {/await}
 </div>
