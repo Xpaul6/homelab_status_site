@@ -11,18 +11,17 @@
   async function getStatus() {
     isLoading = true;
     try {
-      const res = await fetch(`/api/mcstatus/${address}`);
-      const info = await res.json();
-      if (res.status != 200) {
-        throw Error(info.error);
-      }
+      const response = await fetch(`/api/mcstatus/${address}`);
+      if (!response.ok) throw new Error(`unable to fetch ${address} status`);
+
+      const info = await response.json();
       status = info.online;
       if (status) {
         player_number = info.players.online;
         max_player_number = info.players.max;
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     } finally {
       isLoading = false;
     }

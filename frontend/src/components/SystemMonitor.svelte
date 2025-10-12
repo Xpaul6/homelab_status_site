@@ -11,11 +11,10 @@
   async function getMonitorData() {
     isLoading = true;
     try {
-      const request = await fetch("/api/sysinfo");
-      const data = await request.json();
-      if (request.status != 200) {
-        throw Error(data.error);
-      }
+      const response = await fetch("/api/sysinfo");
+      if (!response.ok) throw new Error("unable to fetch system data");
+
+      const data = await response.json();
       monitor_data = data;
     } catch (error) {
       console.log(error);
@@ -31,9 +30,9 @@
 
 <div class="card w-2/4 max-w-[200px]">
   {#if isLoading}
-    <div>-        -</div>
+    <div>----------</div>
     <div>Loading...</div>
-    <div>-        -</div>
+    <div>----------</div>
   {:else}
     <div>CPU temp: {monitor_data.cpu_temp}°C</div>
     <div>CPU load: {monitor_data.cpu_load_percent.toFixed(1)}%</div>

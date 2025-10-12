@@ -11,12 +11,14 @@
 
   async function getStatus() {
     try {
-      const res = await fetch("/api/server-status");
-      const info = await res.text();
-      server_status = info;
-    } catch (err) {
-      console.log(err);
-      server_status = "Server is down :("
+      const response = await fetch("/api/server-status");
+      if (!response.ok) throw new Error("server is offline");
+
+      const data = await response.text();
+      server_status = data;
+    } catch (error) {
+      console.log(error);
+      server_status = "Server is down :(";
     }
   }
 
@@ -41,6 +43,5 @@
         <MCStatusBar address={server.address} label={server.label} />
       {/each}
     </div>
-    
   </div>
 </main>
