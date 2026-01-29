@@ -1,7 +1,6 @@
 <script>
   let props = $props();
-  let address = props.address;
-  let label = props.label;
+  let { address, label } = props;
 
   let status = $state(false);
   let player_number = $state(0);

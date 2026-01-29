@@ -1,11 +1,11 @@
-import express from 'express'
-import swaggerUi from 'swagger-ui-express'
-import swaggerJsDoc from 'swagger-jsdoc'
+import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
 
-import si from 'systeminformation'
+import si from 'systeminformation';
 
-const app = express()
-const PORT = 8080
+const app = express();
+const PORT = 8080;
 
 // Swagger
 const swaggerOptions = {
@@ -23,7 +23,7 @@ const swaggerOptions = {
     ],
   },
   apis: ['./index.js'],
-}
+};
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
@@ -37,7 +37,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
  *       200:
  *         description: A successful response.
  */
-app.get('/server-status', (_, res) => { return res.send('Server is up!') })
+app.get('/server-status', (_, res) => { return res.send('Server is up!') });
 
 /**
  * @swagger
@@ -81,7 +81,42 @@ app.get('/mcstatus/:address', async (req, res) => {
     console.log(err);
     return res.status(500).send({ error: 'Failed to fetch Minecraft server status' });
   }
-})
+});
+
+/**
+ * @swagger
+ * /websitestatus:
+ *   get:
+ *     summary: Checks the status of a given website.
+ *     description: Pings a website at the given URL and returns its HTTP status. The address must be a full URL.
+ *     parameters:
+ *       - in: query
+ *         name: address
+ *         required: true
+ *         description: The full URL of the website to check (e.g., http://myservice:8080).
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Website is reachable and returned a 200 status.
+ *       503:
+ *         description: Website is reachable but returned a non-200 status.
+ *       500:
+ *         description: Error checking website status.
+ */
+app.get('/websitestatus', async (req, res) => {
+  try {
+    const siteResponse = await fetch(req.query.address);
+    if (siteResponse.status == 200) {
+      return res.status(200).send();
+    } else {
+      return res.status(503).send();
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ error: err });
+  }
+});
 
 /**
  * @swagger
@@ -131,9 +166,9 @@ app.get('/sysinfo', async (_, res) => {
     console.log(error);
     return res.status(500).send({ error: 'Failed to fetch system information' });
   }
-})
+});
 
 // Server
 app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`)
-})
+  console.log(`Listening on port ${PORT}`);
+});

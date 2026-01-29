@@ -1,10 +1,14 @@
 <script>
   import MCStatusBar from "./components/MCStatusBar.svelte";
   import SystemMonitor from "./components/SystemMonitor.svelte";
+  import WebPing from "./components/WebPing.svelte";
 
   const mcservers = [
     { address: "carapuziki.ddns.net:25000", label: "CARAPUZIKI" },
-    { address: "carapuziki.ddns.net:25565", label: "YapSMP" },
+  ];
+
+  const webpages = [
+    { address: "http://carapuziki.ddns.net:55556", label: "MB Bank"},
   ];
 
   let server_status = $state("Loading...");
@@ -41,6 +45,9 @@
     <div class="flex flex-row flex-wrap w-3/4 max-w-[700px] justify-center">
       {#each mcservers as server}
         <MCStatusBar address={server.address} label={server.label} />
+      {/each}
+      {#each webpages as webpage}
+        <WebPing address={webpage.address} label={webpage.label} />
       {/each}
     </div>
   </div>
