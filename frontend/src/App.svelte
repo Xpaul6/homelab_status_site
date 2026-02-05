@@ -8,7 +8,7 @@
   ];
 
   const webpages = [
-    { address: "http://carapuziki.ddns.net:55556", label: "MB Bank"},
+    { address: "http://carapuziki.ddns.net:55556", label: "MD Bank"},
   ];
 
   let server_status = $state("Loading...");
