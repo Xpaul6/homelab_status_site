@@ -137,7 +137,7 @@
           <div class="flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-50" x-data="{ data: {} }"
             x-init="data = await getSiteStatus(site.address)"
             x-on:update.window="data = await getSiteStatus(site.address)">
-            <span x-text="site.label"></span>
+            <span x-text="site.label"></span>:
             <template x-if="data.status">
               <span class="text-green-200">online</span>
             </template>
