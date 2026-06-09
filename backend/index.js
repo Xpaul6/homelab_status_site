@@ -1,6 +1,7 @@
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import swaggerAutogen from 'swagger-autogen';
+import cors from 'cors';
 import fs from 'fs';
 
 import si from 'systeminformation';
@@ -8,6 +9,11 @@ import si from 'systeminformation';
 const app = express();
 const PORT = 8080;
 
+// cors
+var corsOptions = {
+  origin: "*",
+  optionSuccessStatus: 200
+}
 // Swagger
 const swaggerOptions = {
   info: {
@@ -24,9 +30,9 @@ const swaggerFile = JSON.parse(fs.readFileSync('./swagger-output.json'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 // Routes
-app.get('/server-status', (_, res) => { return res.send('Server is up!') });
+app.get('/server-status', cors(corsOptions), (_, res) => { return res.send('Server is up!') });
 
-app.get('/mcstatus/:address', async (req, res) => {
+app.get('/mcstatus/:address', cors(corsOptions), async (req, res) => {
   try {
     const apiResponse = await fetch(`https://api.mcstatus.io/v2/status/java/${req.params.address}`);
     const info = await apiResponse.json();
@@ -37,7 +43,7 @@ app.get('/mcstatus/:address', async (req, res) => {
   }
 });
 
-app.get('/websitestatus', async (req, res) => {
+app.get('/websitestatus', cors(corsOptions), async (req, res) => {
   try {
     const siteResponse = await fetch(req.query.address);
     if (siteResponse.status == 200) {
@@ -51,7 +57,7 @@ app.get('/websitestatus', async (req, res) => {
   }
 });
 
-app.get('/sysinfo', async (_, res) => {
+app.get('/sysinfo', cors(corsOptions), async (_, res) => {
   try {
     const [temp, load, mem] = await Promise.all([
       si.cpuTemperature(),

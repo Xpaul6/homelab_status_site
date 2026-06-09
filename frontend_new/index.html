@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    const API_ROUTE = "http://127.0.0.1:8080";
+
+    async function getStatus() {
+      let data = {text: "Server is down"};
+
+      try {
+        const response = await fetch(`${API_ROUTE}/server-status`);
+        if (!response.ok) throw new Error("server is offline");
+
+        data.text = await response.text();
+      } catch (error) {
+        console.log(error);
+      }
+
+      return data;
+    }
+
+    async function getMonitorData() {
+      let data = {
+        cpu_temp: 0,
+        cpu_load_percent: 0,
+        ram_percent: 0,
+      };
+
+      try {
+        const response = await fetch(`${API_ROUTE}/sysinfo`);
+        if (!response.ok) throw new Error("unable to fetch system data");
+
+        data = await response.json();
+      } catch (error) {
+        console.log(error);
+      }
+
+      return data;
+    }
+
+    async function getMCServerStatus(address) {
+      let data = {
+        status: false,
+        player_number: 0,
+        max_player_number: 0
+      };
+
+      try {
+        const response = await fetch(`${API_ROUTE}/mcstatus/${address}`);
+        if (!response.ok) throw new Error(`unable to fetch ${address} status`);
+
+        const info = await response.json();
+        data.status = info.online;
+        if (info.online) {
+          data.player_number = info.players.online;
+          data.max_player_number = info.players.max;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      return data;
+    }
+
+    async function getSiteStatus(address) {
+      let data = {status: false};
+
+      try {
+        const response = await fetch(`${API_ROUTE}/websitestatus?address=${address}`);
+        if (!response.ok) throw new Error(`unable to fetch ${address} status`);
+
+        data.status = true;
+      } catch (error) {
+        console.log(error);
+      }
+
+      return data;
+    }
+
+    // Update loop
+    let updateEvent = new CustomEvent("update");
+    setInterval(() => {window.dispatchEvent(updateEvent)}, 5000)
+  </script>
+</head>
+
+<body>
+  <main>
+    <div class="flex flex-col justify-center items-center">
+      <h1 class="text-3xl mt-20" x-data="{ data: {} }" x-init="data = await getStatus()"
+        x-on:update.window="data = await getStatus()">
+        <span x-text="data.text"></span>
+      </h1>
+
+      <!--System monitor block-->
+      <h2 class="text-xl m-3 mt-20">System monitor:</h2>
+      <div class="flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-2/4 max-w-[200px]"
+        x-data="{ data: {} }" x-init="data = await getMonitorData()" x-on:update.window="data = await getMonitorData()">
+        <div>CPU temp: <span x-text="data.cpu_temp"></span>°C</div>
+        <div>CPU load: <span x-text="data.cpu_load_percent.toFixed(1)"></span>%</div>
+        <div>RAM load: <span x-text="data.ram_percent.toFixed(1)"></span>%</div>
+      </div>
+
+      <h2 class="text-xl m-3">Services status:</h2>
+      <div class="flex flex-row flex-wrap w-3/4 max-w-[700px] justify-center" x-data="{
+          servers: [{ address: 'carapuziki.ddns.net:25000', label: 'CARAPUZIKI' }],
+          sites: [{ address: 'http://carapuziki.ddns.net:55556', label: 'MD Bank'}]
+        }">
+        <!-- Minecraft servers block -->
+        <template x-for="server in servers">
+          <div class=" flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-50"
+            x-data="{ data: {} }" x-init="data = await getMCServerStatus(server.address)"
+            x-on:update.window="data = await getMCServerStatus(server.address)">
+            <div>
+              <span x-text="server.label"></span>:
+              <template x-if="data.status">
+                <span class="text-green-200">online</span>
+              </template>
+              <template x-if="!data.status">
+                <span>offline</span>
+              </template>
+            </div>
+            <template x-if="data.status">
+              <div><span x-text="data.player_number"></span>/<span x-text="data.max_player_number"></span> players</div>
+            </template>
+          </div>
+        </template>
+
+        <!-- Web servers block -->
+        <template x-for="site in sites">
+          <div class="flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-50" x-data="{ data: {} }"
+            x-init="data = await getSiteStatus(site.address)"
+            x-on:update.window="data = await getSiteStatus(site.address)">
+            <span x-text="site.label"></span>:
+            <template x-if="data.status">
+              <span class="text-green-200">online</span>
+            </template>
+            <template x-if="!data.status">
+              <span class="text-red-200">offline</span>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+  </main>
+</body>
+
+</html>
