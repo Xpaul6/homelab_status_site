@@ -1,8 +1,8 @@
 services:
   frontend:
-    build: ./frontend
+    build: ./frontend_new
     ports:
-      - "5555:5555"    # Host:Container
+      - "5555:5555" # Host:Container
     depends_on:
       - backend
     networks:
