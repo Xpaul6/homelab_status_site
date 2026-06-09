@@ -1,14 +1,14 @@
 services:
-  frontend:
+  dash-frontend:
     build: ./frontend_new
     ports:
       - "5555:5555" # Host:Container
     depends_on:
-      - backend
+      - dash-backend
     networks:
       - app-network
 
-  backend:
+  dash-backend:
     build: ./backend
     ports:
       - "8080:8080"
