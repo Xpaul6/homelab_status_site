@@ -7,20 +7,24 @@
   <title>Dashboard</title>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
   <link rel="stylesheet" href="style.css">
   <script>
     const API_ROUTE = "/api/";
+    const UPDATE_INTERVAL = 5 * 1000;
+    const TIMEOUT = 2 * 1000;
 
     async function getStatus() {
       let data = {text: "Server is down"};
 
       try {
-        const response = await fetch(`${API_ROUTE}/server-status`);
+        const response = await fetch(`${API_ROUTE}/server-status`, {signal: AbortSignal.timeout(TIMEOUT)});
         if (!response.ok) throw new Error("server is offline");
 
         data.text = await response.text();
       } catch (error) {
         console.log(error);
+        return {error: error};
       }
 
       return data;
@@ -34,12 +38,13 @@
       };
 
       try {
-        const response = await fetch(`${API_ROUTE}/sysinfo`);
+        const response = await fetch(`${API_ROUTE}/sysinfo`, {signal: AbortSignal.timeout(TIMEOUT)});
         if (!response.ok) throw new Error("unable to fetch system data");
 
         data = await response.json();
       } catch (error) {
         console.log(error);
+        return {error: error};
       }
 
       return data;
@@ -53,7 +58,7 @@
       };
 
       try {
-        const response = await fetch(`${API_ROUTE}/mcstatus/${address}`);
+        const response = await fetch(`${API_ROUTE}/mcstatus/${address}`, {signal: AbortSignal.timeout(TIMEOUT)});
         if (!response.ok) throw new Error(`unable to fetch ${address} status`);
 
         const info = await response.json();
@@ -64,6 +69,7 @@
         }
       } catch (error) {
         console.log(error);
+        return {error: error};
       }
 
       return data;
@@ -73,12 +79,13 @@
       let data = {status: false};
 
       try {
-        const response = await fetch(`${API_ROUTE}/websitestatus?address=${address}`);
+        const response = await fetch(`${API_ROUTE}/websitestatus?address=${address}`, {signal: AbortSignal.timeout(TIMEOUT)});
         if (!response.ok) throw new Error(`unable to fetch ${address} status`);
 
         data.status = true;
       } catch (error) {
         console.log(error);
+        return {error: error};
       }
 
       return data;
@@ -86,25 +93,41 @@
 
     // Update loop
     let updateEvent = new CustomEvent("update");
-    setInterval(() => {window.dispatchEvent(updateEvent)}, 5000)
+    setInterval(() => {window.dispatchEvent(updateEvent)}, UPDATE_INTERVAL)
   </script>
 </head>
 
-<body>
+<body"""">
   <main>
     <div class="flex flex-col justify-center items-center">
-      <h1 class="text-3xl mt-20" x-data="{ data: {} }" x-init="data = await getStatus()"
-        x-on:update.window="data = await getStatus()">
-        <span x-text="data.text"></span>
+      <h1 class="text-3xl mt-20" x-data="{ data: {} }" x-on:update.window="data = await getStatus()"
+        x-init="data = await getStatus()">
+        <template x-if="!data.text">
+          <span>Loading...</span>
+        </template>
+        <template x-if="data.text">
+          <span x-text="data.text"></span>
+        </template>
       </h1>
 
       <!--System monitor block-->
       <h2 class="text-xl m-3 mt-20">System monitor:</h2>
       <div class="flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-2/4 max-w-[200px]"
-        x-data="{ data: {} }" x-init="data = await getMonitorData()" x-on:update.window="data = await getMonitorData()">
-        <div>CPU temp: <span x-text="data.cpu_temp"></span>°C</div>
-        <div>CPU load: <span x-text="data.cpu_load_percent.toFixed(1)"></span>%</div>
-        <div>RAM load: <span x-text="data.ram_percent.toFixed(1)"></span>%</div>
+        x-data="{ data: {} }" x-on:update.window="data = await getMonitorData()" x-init="data = await getMonitorData()">
+        <template x-if="data.error || Object.keys(data).length == 0">
+          <div>
+            <div>----------</div>
+            <div>Loading...</div>
+            <div>----------</div>
+          </div>
+        </template>
+        <template x-if="!data.error && Object.keys(data).length > 0">
+          <div>
+            <div>CPU temp: <span x-text="data.cpu_temp"></span>°C</div>
+            <div>CPU load: <span x-text="data.cpu_load_percent.toFixed(1)"></span>%</div>
+            <div>RAM load: <span x-text="data.ram_percent.toFixed(1)"></span>%</div>
+          </div>
+        </template>
       </div>
 
       <h2 class="text-xl m-3">Services status:</h2>
@@ -115,19 +138,30 @@
         <!-- Minecraft servers block -->
         <template x-for="server in servers">
           <div class=" flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-50"
-            x-data="{ data: {} }" x-init="data = await getMCServerStatus(server.address)"
-            x-on:update.window="data = await getMCServerStatus(server.address)">
-            <div>
-              <span x-text="server.label"></span>:
-              <template x-if="data.status">
-                <span class="text-green-200">online</span>
-              </template>
-              <template x-if="!data.status">
-                <span>offline</span>
-              </template>
-            </div>
-            <template x-if="data.status">
-              <div><span x-text="data.player_number"></span>/<span x-text="data.max_player_number"></span> players</div>
+            x-data="{ data: {} }" x-on:update.window="data = await getMCServerStatus(server.address)"
+            x-init="data = await getMCServerStatus(server.address)">
+            <template x-if="data.error || Object.keys(data).length == 0">
+              <div class="flex flex-col items-center">
+                <div x-text="server.label"></div>
+                <div>Loading...</div>
+              </div>
+            </template>
+            <template x-if="!data.error && Object.keys(data).length > 0">
+              <div class="flex flex-col items-center">
+                <div>
+                  <span x-text="server.label"></span>:
+                  <template x-if="data.status">
+                    <span class="text-green-200">online</span>
+                  </template>
+                  <template x-if="!data.status">
+                    <span>offline</span>
+                  </template>
+                </div>
+                <template x-if="data.status">
+                  <div><span x-text="data.player_number"></span>/<span x-text="data.max_player_number"></span> players
+                  </div>
+                </template>
+              </div>
             </template>
           </div>
         </template>
@@ -135,22 +169,32 @@
         <!-- Web servers block -->
         <template x-for="site in sites">
           <div class="flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-50" x-data="{ data: {} }"
-            x-init="data = await getSiteStatus(site.address)"
-            x-on:update.window="data = await getSiteStatus(site.address)">
-            <div class="flex flex-row">
-              <span x-text="site.label"></span>:
-            </div>
-            <template x-if="data.status">
-              <span class="text-green-200">online</span>
+            x-on:update.window="data = await getSiteStatus(site.address)"
+            x-init="data = await getSiteStatus(site.address)">
+            <template x-if="data.error || Object.keys(data).length == 0">
+              <div class="flex flex-col items-center">
+                <div x-text="site.label"></div>
+                <div>Loading...</div>
+              </div>
             </template>
-            <template x-if="!data.status">
-              <span class="text-red-200">offline</span>
+            <template x-if="!data.error && Object.keys(data).length > 0">
+              <div class="flex flex-col items-center">
+                <div class="flex flex-row">
+                  <span x-text="site.label"></span>:
+                </div>
+                <template x-if="data.status">
+                  <span class="text-green-200">online</span>
+                </template>
+                <template x-if="!data.status">
+                  <span class="text-red-200">offline</span>
+                </template>
+              </div>
             </template>
           </div>
         </template>
       </div>
     </div>
   </main>
-</body>
+  </body>
 
 </html>
