@@ -7,7 +7,7 @@
   <title>Dashboard</title>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
+  <link rel="icon" type="image/png" href="gnome.png">
   <link rel="stylesheet" href="style.css">
   <script>
     const API_ROUTE = "/api/";
@@ -97,7 +97,7 @@
   </script>
 </head>
 
-<body"""">
+<body>
   <main>
     <div class="flex flex-col justify-center items-center">
       <h1 class="text-3xl mt-20" x-data="{ data: {} }" x-on:update.window="data = await getStatus()"

@@ -27,7 +27,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/", proxy)
-	mux.Handle("/", http.FileServer(http.Dir("./")))
+	mux.Handle("/", http.FileServer(http.Dir("./static/")))
 
 	log.Fatal(http.ListenAndServe(":5555", mux))
 }

@@ -7,8 +7,7 @@ COPY go.mod ./
 # RUN go mod download
 
 COPY main.go ./
-COPY index.html ./
-COPY style.css ./
+COPY static/ ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /dashboard_frontend
 
