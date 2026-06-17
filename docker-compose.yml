@@ -11,7 +11,7 @@ services:
   dash-backend:
     build: ./backend
     ports:
-      - "8080:8080"
+      - "8080:8080" # Host:Container
     environment:
       - NODE_ENV=production
     networks:
