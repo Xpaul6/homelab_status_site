@@ -5,11 +5,21 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No env file provided")
+	}
+}
+
 func main() {
-	target, _ := url.Parse("http://dash-backend:8080")
+	target, _ := url.Parse(os.Getenv("BACKEND_URL"))
 
 	proxy := &httputil.ReverseProxy{
 		Rewrite: func(pr *httputil.ProxyRequest) {

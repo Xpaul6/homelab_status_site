@@ -3,6 +3,8 @@ services:
     build: ./frontend_new
     ports:
       - "5555:5555" # Host:Container
+    environment:
+      - BACKEND_URL=http://dash-backend:8080
     depends_on:
       - dash-backend
     networks:
