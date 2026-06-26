@@ -7,7 +7,7 @@ on:
       - master
 
 env:
-   COMPOSE_FILE: docker-compose.yml
+   COMPOSE_FILE: ~/projects/static_sites/homelab_status_site/docker-compose.yml
    COMPOSE_PROJECT_NAME: Homelab_dashboard
 
 jobs:
