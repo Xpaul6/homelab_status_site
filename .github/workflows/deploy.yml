@@ -1,0 +1,22 @@
+name: Deploy to homelab
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+env:
+   COMPOSE_FILE: docker-compose.yml
+   COMPOSE_PROJECT_NAME: Homelab_dashboard
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rebuild containers
+        run: |
+            docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --remove-orphans
