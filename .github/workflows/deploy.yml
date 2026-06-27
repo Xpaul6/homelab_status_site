@@ -19,4 +19,4 @@ jobs:
 
       - name: Rebuild containers
         run: |
-            docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --remove-orphans
+            sudo docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --remove-orphans
