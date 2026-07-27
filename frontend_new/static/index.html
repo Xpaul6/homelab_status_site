@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="gnome.png">
   <link rel="stylesheet" href="style.css">
   <script>
-    const API_ROUTE = "/api/";
+    const API_ROUTE = "/api";
     const UPDATE_INTERVAL = 5 * 1000;
     const TIMEOUT = 2 * 1000;
 
@@ -135,6 +135,7 @@
           servers: [{ address: 'carapuziki.ddns.net:25000', label: 'CARAPUZIKI' }],
           sites: [{ address: 'http://carapuziki.ddns.net:55556', label: 'MD Bank'}]
         }">
+
         <!-- Minecraft servers block -->
         <template x-for="server in servers">
           <div class=" flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-50"
@@ -195,6 +196,6 @@
       </div>
     </div>
   </main>
-  </body>
+</body>
 
 </html>
