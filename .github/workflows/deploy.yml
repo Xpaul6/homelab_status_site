@@ -1,22 +1,28 @@
 name: Deploy to homelab
-# test
+
 on:
   push:
     branches:
-      - main
       - master
-
-env:
-   COMPOSE_FILE: ~/projects/static_sites/ping_page/docker-compose.yml
-   COMPOSE_PROJECT_NAME: Homelab_dashboard
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Rebuild containers
+      - name: Set up SSH
         run: |
-            sudo docker compose -f ${{ env.COMPOSE_FILE }} up -d --build --remove-orphans
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+
+      - name: Pull and rebuild containers
+        run: ssh ${{ secrets.SSH_USER }}@${{secrets.SSH_HOST}} "cd ${{ WORK_DIR }} && git fetch && git pull && \
+                                                                cd ${{ COMPOSE_DIR }} && \
+                                                                docker compose -f run-services.yml up -d --build dash-backend && \
+                                                                docker compose -f run-services.yml up -d --build dash-frontend"
+
+      - name: Cleanup
+        run: rm -rf ~/.ssh/
