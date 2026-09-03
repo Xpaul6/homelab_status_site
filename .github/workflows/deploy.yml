@@ -21,7 +21,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
 
       - name: Pull and rebuild containers
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git fetch && git pull && \
+        run: ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git fetch && git pull && \
                                                                 cd ${{ secrets.COMPOSE_DIR }} && \
                                                                 docker compose -f run-services.yml up -d --build dash-backend && \
                                                                 docker compose -f run-services.yml up -d --build dash-frontend"
