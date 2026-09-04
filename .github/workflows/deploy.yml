@@ -1,4 +1,4 @@
-name: Deploy to homelab
+name: Build check and deploy
 
 on:
   push:
@@ -6,7 +6,21 @@ on:
       - master
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Docker Compose
+      uses: docker/setup-compose-action@v2
+      with:
+        version: latest
+
+    - name: Build Docker Compose
+      run: docker compose build
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     environment: Deploy
     steps:
