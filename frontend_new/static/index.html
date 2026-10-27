@@ -13,6 +13,14 @@
     const API_ROUTE = "/api";
     const UPDATE_INTERVAL = 5 * 1000;
     const TIMEOUT = 2 * 1000;
+    const SERVICES = {
+      servers: [
+        {address: 'carapuziki.ddns.net:25000', label: 'CARAPUZIKI'},
+      ],
+      sites: [
+        {address: 'http://carapuziki.ddns.net:3000', label: 'Grafana'},
+      ]
+    }
 
     async function getStatus() {
       let data = {text: "Server is down"};
@@ -131,13 +139,10 @@
       </div>
 
       <h2 class="text-xl m-3">Services status:</h2>
-      <div class="flex flex-row flex-wrap w-3/4 max-w-[700px] justify-center" x-data="{
-          servers: [{ address: 'carapuziki.ddns.net:25000', label: 'CARAPUZIKI' }],
-          sites: [{ address: 'http://carapuziki.ddns.net:3000', label: 'Grafana'}]
-        }">
+      <div class="flex flex-row flex-wrap w-3/4 max-w-[700px] justify-center" x-data="services = SERVICES">
 
         <!-- Minecraft servers block -->
-        <template x-for="server in servers">
+        <template x-for="server in services.servers">
           <div class=" flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-50"
             x-data="{ data: {} }" x-on:update.window="data = await getMCServerStatus(server.address)"
             x-init="data = await getMCServerStatus(server.address)">
@@ -168,17 +173,17 @@
         </template>
 
         <!-- Web servers block -->
-        <template x-for="site in sites">
+        <template x-for="site in services.sites">
           <div class="flex flex-col items-center border-gray-100 border-1 p-3 m-3 rounded-xl w-50" x-data="{ data: {} }"
             x-on:update.window="data = await getSiteStatus(site.address)"
             x-init="data = await getSiteStatus(site.address)">
-            <template x-if="data.error || Object.keys(data).length == 0">
+            <template x-if="Object.keys(data).length == 0">
               <div class="flex flex-col items-center">
                 <div x-text="site.label"></div>
                 <div>Loading...</div>
               </div>
             </template>
-            <template x-if="!data.error && Object.keys(data).length > 0">
+            <template x-if="Object.keys(data).length > 0">
               <div class="flex flex-col items-center">
                 <div class="flex flex-row">
                   <span x-text="site.label"></span>:
@@ -186,7 +191,7 @@
                 <template x-if="data.status">
                   <span class="text-green-200">online</span>
                 </template>
-                <template x-if="!data.status">
+                <template x-if="data.error">
                   <span class="text-red-200">offline</span>
                 </template>
               </div>
