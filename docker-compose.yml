@@ -1,6 +1,6 @@
 services:
   dash-frontend:
-    build: ./frontend_new
+    build: ./frontend
     ports:
       - "5555:5555" # Host:Container
     environment:
@@ -11,7 +11,7 @@ services:
       - app-network
 
   dash-backend:
-    build: ./backend_new
+    build: ./backend
     ports:
       - "8080:8080" # Host:Container
     networks:
