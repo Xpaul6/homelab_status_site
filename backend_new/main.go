@@ -29,6 +29,7 @@ type SysInfo struct {
 }
 
 const (
+	VERSION        = "2.0"
 	PORT           = "8080"
 	CHECK_INTERVAL = 1500 * time.Millisecond
 )
@@ -37,6 +38,9 @@ func main() {
 	router := gin.Default()
 	router.GET("/healthz", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "up"})
+	})
+	router.GET("/version", func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, VERSION)
 	})
 
 	// Routes
