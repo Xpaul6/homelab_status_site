@@ -1,4 +1,4 @@
-FROM golang:1.26 AS builder
+FROM golang:1.27 AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY main.go go.mod go.sum ./
 RUN CGO_ENABLED=0 GOOS=linux go build -o /dashboard_frontend
 
 
-FROM alpine:latest
+FROM alpine:3.24
 
 WORKDIR /root/
 

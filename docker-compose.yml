@@ -11,11 +11,9 @@ services:
       - app-network
 
   dash-backend:
-    build: ./backend
+    build: ./backend_new
     ports:
       - "8080:8080" # Host:Container
-    environment:
-      - NODE_ENV=production
     networks:
       - app-network
 
