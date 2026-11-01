@@ -29,7 +29,7 @@ type SysInfo struct {
 }
 
 const (
-	VERSION        = "2.0"
+	VERSION        = "2.0-k8s"
 	PORT           = "8080"
 	CHECK_INTERVAL = 1500 * time.Millisecond
 )
