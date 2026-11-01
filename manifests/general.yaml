@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: dashboard-backend:latest
+          image: registry.local:5000/dashboard-backend:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 8080
@@ -62,7 +62,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: dashboard-frontend:latest
+          image: registry.local:5000/dashboard-frontend:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 5555

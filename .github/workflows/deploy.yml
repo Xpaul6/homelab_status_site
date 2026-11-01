@@ -38,10 +38,10 @@ jobs:
           ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
             cd ${{ secrets.WORK_DIR }} &&
             git fetch && git pull &&
-            docker build ./frontend -t dashboard-frontend &&
-            docker build ./backend -t dashboard-backend &&
-            minikube image load dashboard-frontend &&
-            minikube image load dashboard-backend &&
+          docker build ./frontend -t registry.local:5000/dashboard-frontend &&
+            docker build ./backend -t registry.local:5000/dashboard-backend &&
+            minikube image load registry.local:5000/dashboard-frontend &&
+            minikube image load registry.local:5000/dashboard-backend &&
             kubectl apply -f manifests/general.yaml &&
             kubectl rollout restart deployment/dashboard-backend -n dashboard-ns &&
             kubectl rollout restart deployment/dashboard-frontend -n dashboard-ns
