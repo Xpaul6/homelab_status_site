@@ -52,6 +52,7 @@ func main() {
 		address := ctx.Param("address")
 
 		resp, err := http.Get(fmt.Sprintf("https://api.mcstatus.io/v2/status/java/%s", address))
+		defer resp.Body.Close()
 		if err != nil {
 			log.Print(err.Error())
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch server status"})
