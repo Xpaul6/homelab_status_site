@@ -38,9 +38,13 @@ jobs:
           ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
             cd ${{ secrets.WORK_DIR }} &&
             git fetch && git pull &&
-            cd ${{ secrets.COMPOSE_DIR }} &&
-            docker compose -f run-services.yml up -d --build dash-backend &&
-            docker compose -f run-services.yml up -d --build dash-frontend
+            docker build ./frontend -t dashboard-frontend &&
+            docker build ./backend -t dashboard-backend &&
+            minikube image load dashboard-frontend &&
+            minikube image load dashboard-backend &&
+            kubectl apply -f manifests/general.yaml &&
+            kubectl rollout restart deployment/dashboard-backend -n dashboard-ns &&
+            kubectl rollout restart deployment/dashboard-frontend -n dashboard-ns
           "
 
       - name: Cleanup

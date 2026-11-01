@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY main.go go.mod go.sum ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /dashboard_backend
+RUN CGO_ENABLED=0 GOOS=linux GODEBUG=tlsmlkem=0 go build -o /dashboard_backend
 
 
 FROM alpine:3.24
