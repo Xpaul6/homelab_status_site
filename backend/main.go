@@ -29,7 +29,7 @@ type SysInfo struct {
 }
 
 const (
-	VERSION        = "2.0-k8s"
+	VERSION        = "2.1-k8s"
 	PORT           = "8080"
 	CHECK_INTERVAL = 1500 * time.Millisecond
 )
@@ -57,7 +57,6 @@ func main() {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch server status"})
 			return
 		}
-		defer resp.Body.Close()
 		if resp.StatusCode == http.StatusServiceUnavailable {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Data API unavalible"})
 			return
@@ -69,6 +68,7 @@ func main() {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Incompatible data structure"})
 			return
 		}
+		resp.Body.Close()
 		ctx.JSON(http.StatusOK, body)
 	})
 
