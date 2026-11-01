@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dashboard-ns
+
+---
+# 1. BACKEND DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-backend
+  namespace: dashboard-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-backend
+  template:
+    metadata:
+      labels:
+        app: dashboard-backend
+    spec:
+      containers:
+        - name: backend
+          image: dashboard-backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+
+---
+# 2. BACKEND SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-backend-svc
+  namespace: dashboard-ns
+spec:
+  selector:
+    app: dashboard-backend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+---
+# 3. FRONTEND DEPLOYMENT
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard-frontend
+  namespace: dashboard-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dashboard-frontend
+  template:
+    metadata:
+      labels:
+        app: dashboard-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: dashboard-frontend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5555
+          env:
+            - name: BACKEND_URL
+              value: "http://dashboard-backend-svc:8080"
+
+---
+# 4. FRONTEND SERVICE
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard-frontend-svc
+  namespace: dashboard-ns
+spec:
+  selector:
+    app: dashboard-frontend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 5555
+      targetPort: 5555
+
+---
+# 5. INGRESS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dashboard-ingress
+  namespace: dashboard-ns
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: "/dashboard(/|$)(.*)"
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: dashboard-frontend-svc
+                port:
+                  number: 5555
