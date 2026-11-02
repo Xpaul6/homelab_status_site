@@ -11,13 +11,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup Docker Compose
-      uses: docker/setup-compose-action@v2
-      with:
-        version: latest
+    - name: Build backend image
+      run: docker build ./backend -t dashboard-backend:$(date +%s)
 
-    - name: Build Docker Compose
-      run: docker compose build
+    - name: Build frontend image
+      run: docker build ./frontend -t dashboard-frontend:$(date +%s)
 
   deploy:
     needs: build
@@ -33,12 +31,12 @@ jobs:
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
 
-      - name: Pull and rebuild containers
+      - name: Pull and deploy into minikube
         run: |
           ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
             cd ${{ secrets.WORK_DIR }} &&
             git fetch && git pull &&
-          docker build ./frontend -t registry.local:5000/dashboard-frontend &&
+            docker build ./frontend -t registry.local:5000/dashboard-frontend &&
             docker build ./backend -t registry.local:5000/dashboard-backend &&
             minikube image load registry.local:5000/dashboard-frontend &&
             minikube image load registry.local:5000/dashboard-backend &&
