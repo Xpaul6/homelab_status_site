@@ -34,6 +34,10 @@ const (
 	CHECK_INTERVAL = 1500 * time.Millisecond
 )
 
+func init() {
+	gin.SetMode(gin.ReleaseMode)
+}
+
 func main() {
 	router := gin.Default()
 	router.GET("/healthz", func(ctx *gin.Context) {
