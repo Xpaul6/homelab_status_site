@@ -1,37 +1,20 @@
 package main
 
 import (
+	"dash_backend/models"
+	"dash_backend/services"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shirou/gopsutil/v4/cpu"
-	"github.com/shirou/gopsutil/v4/mem"
-	"github.com/shirou/gopsutil/v4/sensors"
 )
-
-type MCInfo struct {
-	Online  bool `json:"online"`
-	Players struct {
-		Online int `json:"online"`
-		Max    int `json:"max"`
-	} `json:"players"`
-}
-
-type SysInfo struct {
-	CPU_temp         float64 `json:"cpu_temp"`
-	CPU_load_percent float64 `json:"cpu_load_percent"`
-	RAM_percent      float64 `json:"ram_percent"`
-}
 
 const (
 	VERSION        = "2.1-k8s"
 	PORT           = "8080"
-	CHECK_INTERVAL = 1500 * time.Millisecond
 )
 
 func init() {
@@ -67,7 +50,7 @@ func main() {
 		}
 
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		body := MCInfo{}
+		body := models.MCInfo{}
 		if err := json.Unmarshal(bodyBytes, &body); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Incompatible data structure"})
 			return
@@ -87,7 +70,7 @@ func main() {
 	})
 
 	router.GET("/sysinfo", func(ctx *gin.Context) {
-		info, err := GetSysInfo()
+		info, err := services.GetSysInfo()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get system metrics"})
 			return
@@ -98,34 +81,3 @@ func main() {
 	router.Run(fmt.Sprintf(":%s", PORT))
 }
 
-func GetSysInfo() (SysInfo, error) {
-	cpu_load_percent, err := cpu.Percent(CHECK_INTERVAL, false)
-	if err != nil {
-		return SysInfo{}, nil
-	}
-
-	tempSensors, err := sensors.SensorsTemperatures()
-	var cpu_temp float64
-	if err != nil {
-		return SysInfo{}, nil
-	}
-
-	for _, v := range tempSensors {
-		if v.SensorKey == "coretemp_package_id_0" || v.SensorKey == "PMU tcal" {
-			cpu_temp = v.Temperature
-			break
-		}
-	}
-
-	vm, err := mem.VirtualMemory()
-	if err != nil {
-		return SysInfo{}, err
-	}
-	ram_percent := vm.UsedPercent
-	res := SysInfo{
-		CPU_temp:         cpu_temp,
-		CPU_load_percent: cpu_load_percent[0],
-		RAM_percent:      ram_percent,
-	}
-	return res, nil
-}
