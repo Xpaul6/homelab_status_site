@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	VERSION        = "2.1-k8s"
-	PORT           = "8080"
+	VERSION = "2.1-k8s"
+	PORT    = "8080"
 )
 
 func init() {
