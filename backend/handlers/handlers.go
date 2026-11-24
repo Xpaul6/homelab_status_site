@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,9 +51,9 @@ func WebsiteStatusHandler() gin.HandlerFunc {
 	}
 }
 
-func SysInfoHandler() gin.HandlerFunc {
+func SysInfoHandler(m *sync.Mutex) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		info, err := services.GetSysInfo()
+		info, err := services.GetSysInfo(m)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to get system metrics"})
 			return

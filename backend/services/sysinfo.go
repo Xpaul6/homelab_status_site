@@ -1,17 +1,31 @@
 package services
 
 import (
+	"sync"
 	"time"
 
 	"dash_backend/models"
+
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/mem"
 	"github.com/shirou/gopsutil/v4/sensors"
 )
 
 const CHECK_INTERVAL = 1500 * time.Millisecond
- 
-func GetSysInfo() (models.SysInfo, error) {
+
+var current_info = models.SysInfo{}
+var err error
+
+func StartInfoFetching(m *sync.Mutex) {
+	for {
+		m.Lock()
+		current_info, err = FetchSysInfo()
+		m.Unlock()
+		time.Sleep(8500 * time.Millisecond)
+	}
+}
+
+func FetchSysInfo() (models.SysInfo, error) {
 	cpu_load_percent, err := cpu.Percent(CHECK_INTERVAL, false)
 	if err != nil {
 		return models.SysInfo{}, nil
@@ -41,4 +55,11 @@ func GetSysInfo() (models.SysInfo, error) {
 		RAM_percent:      ram_percent,
 	}
 	return res, nil
+}
+
+func GetSysInfo(m *sync.Mutex) (models.SysInfo, error) {
+	m.Lock()
+	new_info := current_info
+	m.Unlock()
+	return new_info, nil
 }
